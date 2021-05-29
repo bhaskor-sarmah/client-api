@@ -24,7 +24,7 @@ public class ClientServiceTest {
 
     @Test
     @DisplayName("Test - Creating a Client")
-    public void testAirlineCoveringMaximumCities() {
+    public void doTestClientCreation() {
         // Verifying client creation
         ClientEntity client = new ClientEntity();
         client.setFirstName("Bhaskor");
@@ -35,11 +35,6 @@ public class ClientServiceTest {
 
         // Verify create client
         assertEquals("Client Saved Successfully",clientService.createClient(client).getMessage());
-    }
-
-    @Test
-    public void doTestClientCreation(){
-
     }
     
 }
