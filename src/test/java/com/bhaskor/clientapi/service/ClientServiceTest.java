@@ -51,14 +51,58 @@ public class ClientServiceTest {
     @DisplayName("Test - Searching a Client By National ID")
     public void searchClientByNationalId() {
 
-        // Verifying client creation
+        // Verifying client search
         ClientRequest clientReq = new ClientRequest();
         clientReq.setFirstName("");
         clientReq.setIdNumber("840911 4567 658");
         clientReq.setMobileNumber("");
 
-        // Verify create client
+        // Verify search client
         assertEquals("Data Fetch Successfully", clientService.getClient(clientReq).getMessage());
+    }
+
+    @Test
+    @Order(3)
+    @DisplayName("Test - Update Client")
+    public void updateClient() {
+
+        // Verifying client update
+        ClientEntity client = new ClientEntity();
+        client.setId(1L);
+        client.setFirstName("Sarmah");
+        client.setLastName("Bhaskor");
+        client.setIdNumber("840911 4567 658");
+        client.setMobileNumber("+91-7002402636");
+        client.setPhysicalAddress("My Address");
+
+        // Verify update client
+        assertEquals("Client Updated Successfully", clientService.updateClient(client).getMessage());
+    }
+
+    @Test
+    @Order(4)
+    @DisplayName("Test - Update Client with ID not present in the DB")
+    public void updateClientInvalidId() {
+
+        // Verifying client update with a ID that is not available
+        ClientEntity client = new ClientEntity();
+        client.setId(10L);
+        client.setFirstName("Sarmah");
+        client.setLastName("Bhaskor");
+        client.setIdNumber("840911 4567 658");
+        client.setMobileNumber("+91-7002402636");
+        client.setPhysicalAddress("My Address");
+
+        // Verify update client
+        assertEquals("Client not found with Id - 10", clientService.updateClient(client).getMessage());
+    }
+
+    @Test
+    @Order(5)
+    @DisplayName("Test - Fetch All Clients")
+    public void getAllClients() {
+        // Verify fetch all clients
+        assertEquals("Client Data Fetched Successfully", clientService.getAllClients().getMessage());
     }
 
 }
