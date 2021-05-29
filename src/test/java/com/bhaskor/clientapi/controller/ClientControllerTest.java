@@ -4,7 +4,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.List;
+
 import com.bhaskor.clientapi.entity.ClientEntity;
+import com.bhaskor.clientapi.payload.request.ClientRequest;
 import com.bhaskor.clientapi.payload.response.JsonResponse;
 import com.google.gson.Gson;
 
@@ -27,8 +30,12 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ClientControllerTest {
 
+   /************************************************** */
+   /******* INTEGRATION TEST OF THE REST APIs ******** */
+   /************************************************** */
+
    @Autowired
-   MockMvc mvc;   
+   MockMvc mvc;
 
    @Test
    @Order(1)
@@ -45,15 +52,16 @@ public class ClientControllerTest {
       Gson gson = new Gson();
       String json = gson.toJson(client);
 
-      RequestBuilder request = MockMvcRequestBuilders.post("/api/1.0/createClient").contentType(MediaType.APPLICATION_JSON).content(json);
+      RequestBuilder request = MockMvcRequestBuilders.post("/api/1.0/createClient")
+            .contentType(MediaType.APPLICATION_JSON).content(json);
       MvcResult result = mvc.perform(request).andReturn();
 
       JsonResponse res = gson.fromJson(result.getResponse().getContentAsString(), JsonResponse.class);
 
       assertEquals(200, result.getResponse().getStatus());
       assertTrue(res.isStatus());
-      assertEquals("Client Saved Successfully",res.getMessage());
-      
+      assertEquals("Client Saved Successfully", res.getMessage());
+
    }
 
    @Test
@@ -71,15 +79,16 @@ public class ClientControllerTest {
       Gson gson = new Gson();
       String json = gson.toJson(client);
 
-      RequestBuilder request = MockMvcRequestBuilders.post("/api/1.0/createClient").contentType(MediaType.APPLICATION_JSON).content(json);
+      RequestBuilder request = MockMvcRequestBuilders.post("/api/1.0/createClient")
+            .contentType(MediaType.APPLICATION_JSON).content(json);
       MvcResult result = mvc.perform(request).andReturn();
 
       JsonResponse res = gson.fromJson(result.getResponse().getContentAsString(), JsonResponse.class);
 
       assertEquals(400, result.getResponse().getStatus());
       assertFalse(res.isStatus());
-      assertEquals("Data validation error",res.getMessage());
-      
+      assertEquals("Data validation error", res.getMessage());
+
    }
 
    @Test
@@ -97,15 +106,90 @@ public class ClientControllerTest {
       Gson gson = new Gson();
       String json = gson.toJson(client);
 
-      RequestBuilder request = MockMvcRequestBuilders.post("/api/1.0/createClient").contentType(MediaType.APPLICATION_JSON).content(json);
+      RequestBuilder request = MockMvcRequestBuilders.post("/api/1.0/createClient")
+            .contentType(MediaType.APPLICATION_JSON).content(json);
       MvcResult result = mvc.perform(request).andReturn();
 
       JsonResponse res = gson.fromJson(result.getResponse().getContentAsString(), JsonResponse.class);
 
       assertEquals(400, result.getResponse().getStatus());
       assertFalse(res.isStatus());
-      assertEquals("Unique Constrain Violation : idNumber",res.getMessage());
-      
+      assertEquals("Unique Constrain Violation : idNumber", res.getMessage());
+
    }
 
+   @Test
+   @Order(4)
+   @DisplayName("Test - Searching a client by the National ID")
+   public void searchClientByNationalId() throws Exception {
+      ClientRequest clientReq = new ClientRequest();
+      clientReq.setFirstName("");
+      clientReq.setIdNumber("840911 4567 658");
+      clientReq.setMobileNumber("");
+
+      Gson gson = new Gson();
+      String json = gson.toJson(clientReq);
+
+      RequestBuilder request = MockMvcRequestBuilders.post("/api/1.0/getClientDetails")
+            .contentType(MediaType.APPLICATION_JSON).content(json);
+      MvcResult result = mvc.perform(request).andReturn();
+
+      JsonResponse res = gson.fromJson(result.getResponse().getContentAsString(), JsonResponse.class);
+
+      assertEquals(200, result.getResponse().getStatus());
+      assertTrue(res.isStatus());
+      assertEquals("Data Fetch Successfully", res.getMessage());
+
+   }
+
+   @Test
+   @Order(4)
+   @DisplayName("Test - Searching a client by providing blank Data")
+   public void searchClientWithBlankData() throws Exception {
+      ClientRequest clientReq = new ClientRequest();
+      clientReq.setFirstName("");
+      clientReq.setIdNumber("");
+      clientReq.setMobileNumber("");
+
+      Gson gson = new Gson();
+      String json = gson.toJson(clientReq);
+
+      RequestBuilder request = MockMvcRequestBuilders.post("/api/1.0/getClientDetails")
+            .contentType(MediaType.APPLICATION_JSON).content(json);
+      MvcResult result = mvc.perform(request).andReturn();
+
+      JsonResponse res = gson.fromJson(result.getResponse().getContentAsString(), JsonResponse.class);
+
+      assertEquals(400, result.getResponse().getStatus());
+      assertFalse(res.isStatus());
+      assertEquals("Please provide at least a firstName or IdNumber or Mobile", res.getMessage());
+
+   }
+
+   @Test
+   @Order(4)
+   @DisplayName("Test - Searching a client by providing the Name")
+   public void searchClientByName() throws Exception {
+      ClientRequest clientReq = new ClientRequest();
+      clientReq.setFirstName("Bhaskor");
+      clientReq.setIdNumber("");
+      clientReq.setMobileNumber("");
+
+      Gson gson = new Gson();
+      String json = gson.toJson(clientReq);
+
+      RequestBuilder request = MockMvcRequestBuilders.post("/api/1.0/getClientDetails")
+            .contentType(MediaType.APPLICATION_JSON).content(json);
+      MvcResult result = mvc.perform(request).andReturn();
+
+      JsonResponse res = gson.fromJson(result.getResponse().getContentAsString(), JsonResponse.class);
+
+      assertEquals(200, result.getResponse().getStatus());
+      assertTrue(res.isStatus());
+      assertEquals("Data Fetch Successfully", res.getMessage());
+      
+      // Test if we are getting a List Object instead of a Entity Object
+      assertEquals(1, ((List<ClientEntity>)res.getPayload()).size());
+
+   }
 }

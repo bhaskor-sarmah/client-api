@@ -7,6 +7,7 @@ import javax.validation.Valid;
 
 import com.bhaskor.clientapi.entity.ClientEntity;
 import com.bhaskor.clientapi.exception.BadRequestException;
+import com.bhaskor.clientapi.payload.request.ClientRequest;
 import com.bhaskor.clientapi.payload.response.JsonResponse;
 import com.bhaskor.clientapi.service.ClientService;
 
@@ -49,6 +50,26 @@ public class ClientController{
         }
     }
 
-
+    @PostMapping("/getClientDetails")
+    public ResponseEntity<?> getClientDetails(@Valid @RequestBody ClientRequest client){
+        // Data sanity check
+        if (
+            (client.getFirstName() == null || client.getFirstName().trim().equals("")) &&
+            (client.getIdNumber() == null || client.getIdNumber().trim().equals("")) &&
+            (client.getMobileNumber() == null || client.getMobileNumber().trim().equals(""))
+        ){
+            return new ResponseEntity<JsonResponse>(new JsonResponse(false, null, "Please provide at least a firstName or IdNumber or Mobile"),
+                    HttpStatus.BAD_REQUEST);
+        }
+        // Trying to save the client
+        JsonResponse res = clientService.getClient(client);
+        
+        // if saved successfully
+        if (res.isStatus()) {
+            return ResponseEntity.ok(res);
+        } else {
+            throw new BadRequestException(res.getMessage());
+        }
+    }
 
 }
